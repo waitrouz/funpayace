@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import os
+from aiohttp import web
 from funpayace import FunpayAce, FunpayConfig
 
 logging.basicConfig(level=logging.INFO)
