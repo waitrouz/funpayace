@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import os
 from funpayace import FunpayAce, FunpayConfig
 
 logging.basicConfig(level=logging.INFO)
