@@ -20,6 +20,7 @@ async def main():
         logger.error("GOLDEN_KEY не задан в переменных окружения!")
         return
 
+    # Запуск health check сервера
     app = web.Application()
     app.router.add_get("/", health_handler)
     app.router.add_get("/health", health_handler)
@@ -29,22 +30,20 @@ async def main():
     await site.start()
     logger.info(f"Health check запущен на порту {PORT}")
 
+    # Запуск автоподнятия лотов
     client = FunpayAce(golden_key=GOLDEN_KEY, config=FunpayConfig())
     async with client:
-        client.start_forever_online_task()
         client.start_lot_auto_boost_task(GAME_ID, NODE_ID)
+        logger.info(f"Автоподнятие лотов запущено для GAME_ID={GAME_ID}, NODE_ID={NODE_ID}")
 
+        # Держим приложение запущенным, пока работает автоподнятие
         try:
             while True:
-                try:
-                    balance = await client.get_balance()
-                    logger.info("Баланс: %s", balance)
-                except Exception as e:
-                    logger.exception("Ошибка получения баланса: %s", e)
-                await asyncio.sleep(30)
+                await asyncio.sleep(60)
         finally:
             await client.cancel_background_tasks()
             await runner.cleanup()
+            logger.info("Приложение завершено")
 
 if __name__ == "__main__":
     asyncio.run(main())
